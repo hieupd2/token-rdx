@@ -2,29 +2,23 @@
 
 A Sui Move package implementing the RDX token standard with support for:
 
-- Minting new RDX coins (with supply cap via `TreasuryCap`)
+- Everyone can mint new RDX coins, no fix cap
 - Burning RDX coins (full or partial)
 - Transferring full or partial amounts between addresses
 
----
 
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
 - [Setup](#setup)
-- [Project Structure](#project-structure)
-- [Key Modules & Functions](#key-modules--functions)
 - [Running Tests](#running-tests)
 - [Test Coverage](#test-coverage)
-- [Usage Examples](#usage-examples)
 
----
 
 ## Prerequisites
 
 - [Install Sui](https://docs.sui.io/build/install)
 
----
 
 ## Setup
 
@@ -41,34 +35,6 @@ A Sui Move package implementing the RDX token standard with support for:
    sui move build
    ```
 
----
-
-## Project Structure
-
-```
-token-rdx/
-├─ Move.toml          # Package configuration & dependencies
-├─ sources/
-│  └─ token_rdx.move  # Main RDX module with functions: mint, burn, transfer, etc.
-├─ tests/
-│  ├─ mint_tests.move
-│  ├─ transfer_tests.move
-│  ├─ transfer_amount_tests.move
-│  └─ burn_amount_tests.move
-└─ README.md         
-```
-
----
-
-## Key Modules & Functions
-
-- **`RDX`**: The RDX coin.
-- **`mint`**: Public entry to mint new coins (requires `TreasuryCap`).
-- **`burn` / `burn_amount`**: burn coins fully or partially.
-- **`transfer` / `transfer_amount`**: Send whole or partial coin amounts.
-- **`test_init`**: Test-only initializer for Move unit tests.
-
----
 
 ## Running Tests
 
@@ -78,7 +44,6 @@ Execute all Move unit tests with:
 sui move test
 ```
 
----
 
 ## Test Coverage
 
@@ -89,4 +54,3 @@ sui move test --coverage
 sui move coverage summary
 ```
 
----
