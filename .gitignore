@@ -1,0 +1,4 @@
+build/*
+docs/*
+Move.lock
+.coverage_map.mvcov
