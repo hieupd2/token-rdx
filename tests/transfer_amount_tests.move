@@ -6,7 +6,7 @@ use sui::test_scenario::{Self as ts};
 // Import coin functionality for handling partial amounts
 use sui::coin::{Self, Coin, TreasuryCap};
 // Import our token functions and error constants
-use token_rdx::rdx::{RDX, mint, transfer_amount, test_init, E_AMOUNT_ZERO};
+use token_rdx::rdx::{RDX, mint, transfer_amount, test_init, E_AMOUNT_ZERO, E_INSUFFICIENT};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Unit tests for transfer_amount function (partial transfers)
@@ -103,7 +103,7 @@ fun test_transfer_amount_entire_coin() {
 }
 
 #[test]
-#[expected_failure(abort_code = E_AMOUNT_ZERO)]
+#[expected_failure(abort_code = E_AMOUNT_ZERO)] // E_AMOUNT_ZERO
 fun test_transfer_amount_zero() {
     // Test transferring zero amount (should fail with E_AMOUNT_ZERO)
     let alice = @0x1;
@@ -315,6 +315,38 @@ fun test_transfer_amount_large_numbers() {
         let received_coin = ts::take_from_sender<Coin<RDX>>(&scenario);
         assert!(coin::value(&received_coin) == transfer_amount, 16);
         ts::return_to_sender(&scenario, received_coin);
+    };
+
+    ts::end(scenario);
+}
+
+#[test]
+#[expected_failure(abort_code = E_INSUFFICIENT)]
+fun test_transfer_amount_insufficient() {
+    // Test transferring more than available amount (should fail with E_INSUFFICIENT)
+    let alice = @0x1;
+    let bob = @0x2;
+    
+    let mut scenario = ts::begin(alice);
+    
+    test_init(ts::ctx(&mut scenario));
+    
+    let mint_amount = 50_000_000;      // 0.5 RDX
+    let transfer_amount = 100_000_000; // Try to transfer 1 RDX (more than available)
+    
+    // Alice mints tokens
+    ts::next_tx(&mut scenario, alice);
+    {
+        let mut cap = ts::take_shared<TreasuryCap<RDX>>(&scenario);
+        mint(&mut cap, mint_amount, alice, ts::ctx(&mut scenario));
+        ts::return_shared(cap);
+    };
+
+    // Alice tries to transfer more than she has (this should fail)
+    ts::next_tx(&mut scenario, alice);
+    {
+        let coin = ts::take_from_sender<Coin<RDX>>(&scenario);
+        transfer_amount(coin, transfer_amount, bob, ts::ctx(&mut scenario));
     };
 
     ts::end(scenario);

@@ -6,7 +6,7 @@ use sui::test_scenario::{Self as ts};
 // Import coin functionality and treasury for supply management
 use sui::coin::{Self, TreasuryCap};
 // Import our token functions and error constants
-use token_rdx::rdx::{RDX, mint, burn_amount, test_init, E_AMOUNT_ZERO};
+use token_rdx::rdx::{RDX, mint, burn_amount, test_init, E_AMOUNT_ZERO, E_INSUFFICIENT};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Unit tests for burn_amount function (partial burning)
@@ -141,8 +141,7 @@ fun test_burn_amount_zero() {
     
     test_init(ts::ctx(&mut scenario));
     
-    let mint_amount = 50_000_000; // 0.5 RDX
-    let burn_amount = 0;          // Burn nothing (should fail)
+    let mint_amount = 50_000_000; // 0.5 RDX      
     
     // Alice mints tokens
     ts::next_tx(&mut scenario, alice);
@@ -153,6 +152,41 @@ fun test_burn_amount_zero() {
     };
 
     // Alice tries to "burn" zero amount (this should fail)
+    ts::next_tx(&mut scenario, alice);
+    {
+        let mut cap = ts::take_shared<TreasuryCap<RDX>>(&scenario);
+        let coin = ts::take_from_sender<sui::coin::Coin<RDX>>(&scenario);
+        
+        burn_amount(&mut cap, coin, 0, ts::ctx(&mut scenario));
+        
+        ts::return_shared(cap);
+    };
+
+    ts::end(scenario);
+}
+
+#[test]
+#[expected_failure(abort_code = E_INSUFFICIENT)]
+fun test_burn_amount_insufficient() {
+    // Test burning more than available amount (should fail with E_INSUFFICIENT)
+    let alice = @0x1;
+    
+    let mut scenario = ts::begin(alice);
+    
+    test_init(ts::ctx(&mut scenario));
+    
+    let mint_amount = 50_000_000;   // 0.5 RDX
+    let burn_amount = 100_000_000;  // Try to burn 1 RDX (more than available)
+    
+    // Alice mints tokens
+    ts::next_tx(&mut scenario, alice);
+    {
+        let mut cap = ts::take_shared<TreasuryCap<RDX>>(&scenario);
+        mint(&mut cap, mint_amount, alice, ts::ctx(&mut scenario));
+        ts::return_shared(cap);
+    };
+
+    // Alice tries to burn more than she has (this should fail)
     ts::next_tx(&mut scenario, alice);
     {
         let mut cap = ts::take_shared<TreasuryCap<RDX>>(&scenario);
