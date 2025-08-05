@@ -4,7 +4,7 @@ module token_rdx::init_tests;
 use sui::test_scenario::{Self as ts};
 use sui::coin::{Self, TreasuryCap, CoinMetadata};
 use std::ascii;
-use token_rdx::rdx::{RDX, test_init_coverage};
+use token_rdx::rdx::{RDX, test_init};
 
 // Test the init function to improve coverage
 #[test]
@@ -13,12 +13,8 @@ fun test_init_function() {
     
     let mut scenario = ts::begin(admin);
     
-    // Call the actual init function to increase coverage
-    ts::next_tx(&mut scenario, admin);
-    {
-        // This will execute the init function and improve coverage
-        test_init_coverage(ts::ctx(&mut scenario));
-    };
+    // Call the init function directly - no need for next_tx wrapper
+    test_init(ts::ctx(&mut scenario));
     
     // Verify TreasuryCap was created and shared
     ts::next_tx(&mut scenario, admin);

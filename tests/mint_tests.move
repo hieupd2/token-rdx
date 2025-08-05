@@ -28,7 +28,7 @@ fun test_mint_basic_amount() {
     // Move to the next transaction in the scenario
     ts::next_tx(&mut scenario, user);
     {
-        // Take the shared TreasuryCap from the scenario (immutable reference since we only read from scenario)
+        // Take the shared TreasuryCap from the scenario
         let mut cap = ts::take_shared<TreasuryCap<RDX>>(&scenario);
         // Call the mint function to create new tokens and send them to the user
         mint(&mut cap, mint_amount, user, ts::ctx(&mut scenario));
@@ -37,6 +37,7 @@ fun test_mint_basic_amount() {
     };
 
     // Move to next transaction to verify the mint worked
+    // (Required: coins are only available to take_from_sender after transaction completion)
     ts::next_tx(&mut scenario, user);
     {
         // Take the coin that should have been sent to the user

@@ -113,9 +113,3 @@ public entry fun transfer_amount(
 public fun test_init(ctx: &mut TxContext) {
     init(RDX {}, ctx)
 }
-
-#[test_only]
-/// Test-only function to call init directly for coverage testing
-public fun test_init_coverage(ctx: &mut TxContext) {
-    init(RDX {}, ctx)
-}
