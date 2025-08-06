@@ -52,7 +52,7 @@ entry fun create_pool<T>(ctx: &mut TxContext) {
     let pool_id = object::id(&pool);
     transfer::share_object(pool);
 
-    event::emit(PoolAddedEvent { pool_id: pool_id, creator: ctx.sender() });
+    // event::emit(PoolAddedEvent { pool_id: pool_id, creator: ctx.sender() });
 }
 
 entry fun deposit<T>(
